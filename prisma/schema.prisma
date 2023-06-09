@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  userName   String   @unique @map("user_name")
+  password   String
+  nickName   String?  @map("nick_name")
+  avatar     String?
+  createTime DateTime @default(now()) @map("create_time")
+  updateTime DateTime @updatedAt @map("update_time")
+  userLink   Link[]
+  tagList    Tag[]
+
+  @@map("user")
+}
+
+model Link {
+  id          Int      @id @default(autoincrement())
+  title       String // 链接标题
+  url         String // 链接地址
+  tagIds      String? // 标签id列表：,隔开
+  description String? // 链接描述
+  thumb       String? // 缩略图
+  likeDegree  Int      @default(0) @map("like_degree") // 喜欢程度
+  hasRead     Boolean  @default(false) @map("has_read") // 是否已读
+  createTime  DateTime @default(now()) @map("create_time")
+  updateTime  DateTime @updatedAt @map("update_time")
+  User        User?    @relation(fields: [userId], references: [id])
+  userId      Int
+
+  @@map("link")
+}
+
+// 标签
+model Tag {
+  id       Int     @id @default(autoincrement())
+  tagName  String  @map("tag_name") // 链接标题
+  color    String?
+  parentId Int?
+  User     User?   @relation(fields: [userId], references: [id])
+  userId   Int
+
+  @@map("tag")
+}
